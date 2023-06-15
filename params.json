@@ -6,7 +6,7 @@
       "value": {
         "location": "northeurope",
         "loc_short_code":"ne",
-        "global_uniqueness": "001",
+        "global_uniqueness": "002",
         "enterprise_name": "Miztiik_Enterprises",
         "enterprise_name_suffix": "logs",
         "sub_deploymnet_prefix": "Miztiik_Verse"
@@ -77,7 +77,7 @@
     },
     "vmParams": {
       "value": {
-        "vmCount": 2,
+        "vmCount": 1,
         "vmSize": "Standard_DS2_v2",
         "vmNamePrefix": "m-web-srv",
         "vmSubnetName": "webSubnet02",
@@ -129,8 +129,8 @@
         "udemy_profile": "https://www.udemy.com/user/n-kumar",
         "skill_profile": "https://www.skillshare.com/r/profile/Kumar/407603333",
         "buy_me_a_coffee": "https://ko-fi.com/miztiik",
-        "project": "azure-cognitive-search-for-logs",
-        "github_repo_url": "https://github.com/miztiik/azure-cognitive-search-for-logs"
+        "project": "azure-cognitive-search-for-blobs",
+        "github_repo_url": "https://github.com/miztiik/azure-cognitive-search-for-blobs"
       }
     }
   }

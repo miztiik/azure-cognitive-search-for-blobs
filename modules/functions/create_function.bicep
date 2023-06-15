@@ -17,8 +17,8 @@ param funcSaName string
 
 param blobContainerName string
 
-param svc_bus_ns_name string
-param svc_bus_q_name string
+// param svc_bus_ns_name string
+// param svc_bus_q_name string
 
 
 param cosmos_db_accnt_name string
@@ -49,10 +49,10 @@ resource r_cosmos_db_accnt 'Microsoft.DocumentDB/databaseAccounts@2022-08-15' ex
   name: cosmos_db_accnt_name
 }
 
-@description('Get Service Bus Namespace Reference')
-resource r_svc_bus_ns_ref 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' existing = {
-  name: svc_bus_ns_name
-}
+// @description('Get Service Bus Namespace Reference')
+// resource r_svc_bus_ns_ref 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' existing = {
+//   name: svc_bus_ns_name
+// }
 
 resource r_fnHostingPlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: '${funcParams.funcAppPrefix}-fn-plan-${deploymentParams.global_uniqueness}'
@@ -141,12 +141,12 @@ resource r_fn_app_settings 'Microsoft.Web/sites/config@2021-03-01' = {
     BLOB_NAME: blobContainerName
 
     // SETTINGS FOR SERVICE BUS
-    SVC_BUS_CONNECTION__fullyQualifiedNamespace: '${svc_bus_ns_name}.servicebus.windows.net'
-    SVC_BUS_CONNECTION__credential: 'managedidentity'
-    SVC_BUS_CONNECTION__clientId: r_uami_func.properties.clientId
+    // SVC_BUS_CONNECTION__fullyQualifiedNamespace: '${svc_bus_ns_name}.servicebus.windows.net'
+    // SVC_BUS_CONNECTION__credential: 'managedidentity'
+    // SVC_BUS_CONNECTION__clientId: r_uami_func.properties.clientId
     
-    SVC_BUS_FQDN: '${svc_bus_ns_name}.servicebus.windows.net'
-    SVC_BUS_Q_NAME: svc_bus_q_name
+    // SVC_BUS_FQDN: '${svc_bus_ns_name}.servicebus.windows.net'
+    // SVC_BUS_Q_NAME: svc_bus_q_name
     // SVC_BUS_TOPIC_NAME: svc_bus_topic_name
     // SALES_EVENTS_SUBSCRIPTION_NAME: sales_events_subscriber_name
 
@@ -262,18 +262,18 @@ resource r_customRoleAssignmentToUsrIdentity 'Microsoft.DocumentDB/databaseAccou
 
 // Azure Service Bus Owner
 
-var svcBusRoleId='090c5cfd-751d-490a-894a-3ce6f1109419'
+// var svcBusRoleId='090c5cfd-751d-490a-894a-3ce6f1109419'
 
-resource r_attach_svc_bus_owner_perms_to_tole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid('r_attach_svc_bus_owner_perms_to_tole', r_fn_app.id, svcBusRoleId)
-  scope: r_svc_bus_ns_ref
-  properties: {
-    description: 'Azure Service Owner Permission to Service Bus Namespace scope'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', svcBusRoleId)
-    principalId: r_uami_func.properties.principalId
-    principalType: 'ServicePrincipal'
-  }
-}
+// resource r_attach_svc_bus_owner_perms_to_tole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+//   name: guid('r_attach_svc_bus_owner_perms_to_tole', r_fn_app.id, svcBusRoleId)
+//   scope: r_svc_bus_ns_ref
+//   properties: {
+//     description: 'Azure Service Owner Permission to Service Bus Namespace scope'
+//     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', svcBusRoleId)
+//     principalId: r_uami_func.properties.principalId
+//     principalType: 'ServicePrincipal'
+//   }
+// }
 
 // Azure Event Hub Data Owner
 

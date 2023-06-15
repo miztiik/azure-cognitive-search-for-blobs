@@ -22,7 +22,7 @@ logging.info(f'{GREEN_COLOR}This is green text{RESET_COLOR}')
 
 class GlobalArgs:
     OWNER = "Mystique"
-    VERSION = "2023-05-20"
+    VERSION = "2023-06-15"
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
     EVNT_WEIGHTS = {"success": 80, "fail": 20}
     TRIGGER_RANDOM_FAILURES = os.getenv("TRIGGER_RANDOM_FAILURES", True)
@@ -41,6 +41,11 @@ class GlobalArgs:
     SVC_BUS_FQDN = os.getenv("SVC_BUS_FQDN", "warehouse-q-svc-bus-ns-002.servicebus.windows.net")
     SVC_BUS_Q_NAME = os.getenv("SVC_BUS_Q_NAME","warehouse-q-svc-bus-q-002")
 
+    MSG_COUNT = 0
+    MAX_MESSAGES_TO_PROCESS = 5
+    EVENT_HUB_FQDN = os.getenv("EVENT_HUB_FQDN", "warehouse-event-hub-ns-partition-processor-003.servicebus.windows.net")
+    EVENT_HUB_NAME = os.getenv("EVENT_HUB_NAME","store-events-stream-003")
+    EVENT_HUB_SALE_EVENTS_CONSUMER_GROUP_NAME = os.getenv("EVENT_HUB_SALE_EVENTS_CONSUMER_GROUP_NAME","sale-events-consumers-003")
 
 def _rand_coin_flip():
     r = False
@@ -52,27 +57,33 @@ def _rand_coin_flip():
 def _gen_uuid():
     return str(uuid.uuid4())
 
-def write_to_blob(container_prefix, data: dict, blob_svc_client):
+def write_to_blob(container_prefix: str, data: dict, blob_svc_client):
     try:
         blob_name = f"{GlobalArgs.BLOB_PREFIX}/event_type={container_prefix}/dt={datetime.datetime.now().strftime('%Y_%m_%d')}/{datetime.datetime.now().strftime('%s%f')}.json"
+        if container_prefix is None:
+            blob_name = f"{GlobalArgs.BLOB_PREFIX}/dt={datetime.datetime.now().strftime('%Y_%m_%d')}/{datetime.datetime.now().strftime('%s%f')}.json"
         resp = blob_svc_client.get_blob_client(container=f"{GlobalArgs.BLOB_NAME}", blob=blob_name).upload_blob(json.dumps(data).encode("UTF-8"))
         logging.info(f"Blob {GREEN_COLOR}{blob_name}{RESET_COLOR} uploaded successfully")
+        logging.debug(f"{resp}")
     except Exception as e:
         logging.exception(f"ERROR:{str(e)}")
 
 def write_to_cosmosdb(data: dict, db_container):
     try:
-        data["id"] = data.pop("request_id")
+        # data["id"] = data.pop("request_id", None)
         resp = db_container.create_item(body=data)
         # db_container.create_item(body={'id': str(random.randrange(100000000)), 'ts': str(datetime.datetime.now())})
         logging.info(f"Document with id {GREEN_COLOR}{data['id']}{RESET_COLOR} written to CosmosDB successfully")
+        logging.debug(f"{resp}")
     except Exception as e:
         logging.exception(f"ERROR:{str(e)}")
 
-
 def main(msg: func.ServiceBusMessage) -> str:
-    _a_resp = {"status": False,
-               "miztiik_event_processed": False}
+    _a_resp = {
+                "status": False,
+                "miztiik_event_processed": False,
+                "last_processed_on":None
+            }
     msg_body= msg.get_body().decode("utf-8")
     try:
 
@@ -113,7 +124,7 @@ def main(msg: func.ServiceBusMessage) -> str:
         write_to_blob(_evnt_type, json.loads(msg_body), blob_svc_client)
 
         # write to cosmosdb
-        write_to_cosmosdb(json.loads(msg_body), db_container)
+        # write_to_cosmosdb(json.loads(msg_body), db_container)
         _a_resp["status"] = True
         _a_resp["miztiik_event_processed"] = True
         _a_resp["last_processed_on"] = datetime.datetime.now().isoformat()

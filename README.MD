@@ -1,5 +1,14 @@
-# ETL with Azure Data Factory
+# Index and Search Blob Data using Azure Cognitive Search
 
-Given the number of moving pieces and complexity, it is better for video format than a blog format to have a meaningful demo written and automated. Until i find time for that - this repo is a work in progress.
+Simple demo to create an Azure Cognitive Search service and index data from Azure Blob Storage.
 
-The stack in this repo will deploy a data factory, a storage account, and a producer to generate events. You can use that build a dat factory pipeline to ingest the events into a synapse table and query them.
+1. Produce the events with azure function.
+1. Manually import the data from Azure Blob 1. 1. Storage to Azure Cognitive Search.
+1. Create Index and Indexer
+1. Search using the explorer.
+
+```text
+https://logs-ne-search-002.search.windows.net/indexes/store-events-blob-index/docs?api-version=2021-04-30-Preview&search=books
+```
+
+![Miztiik Automation - Index and Search Blob Data using Azure Cognitive Search](images/miztiik_architecture_azure_cognitive_search_001.png)

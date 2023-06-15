@@ -182,7 +182,7 @@ def evnt_producer():
             # write_to_event_hub(evnt_body, evnt_attr)
 
             # write to cosmosdb
-            # write_to_cosmosdb(evnt_body, db_container)
+            write_to_cosmosdb(evnt_body, db_container)
 
         resp["tot_msgs"] = t_msgs
         resp["bad_msgs"] = p_cnt

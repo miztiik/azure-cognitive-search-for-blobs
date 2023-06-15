@@ -159,6 +159,10 @@ module r_vm 'modules/vm/create_vm.bicep' = {
     storeEventsDcrId: r_dataCollectionRule.outputs.storeEventsDcrId
     automationEventsDcrId: r_dataCollectionRule.outputs.automationEventsDcrId
 
+    add_to_appln_gw: false
+    appln_gw_name: ''
+    appln_gw_back_end_pool_name: ''
+
     tags: tags
   }
   dependsOn: [
@@ -181,3 +185,59 @@ module r_deploy_managed_run_cmd 'modules/bootstrap/run_command_on_vm.bicep'= {
     r_vm
   ]
 }
+
+@description('Create the function app & Functions')
+module r_fn_app 'modules/functions/create_function.bicep' = {
+  name: '${funcParams.funcNamePrefix}_${deploymentParams.loc_short_code}_${deploymentParams.global_uniqueness}_fn_app'
+  params: {
+    deploymentParams:deploymentParams
+    uami_name_func: r_uami.outputs.uami_name_func
+    funcParams: funcParams
+    funcSaName: r_sa.outputs.saName_1
+
+    logAnalyticsWorkspaceId: r_logAnalyticsWorkspace.outputs.logAnalyticsPayGWorkspaceId
+    enableDiagnostics: true
+    tags: tags
+
+    // appConfigName: r_appConfig.outputs.appConfigName
+
+    saName: r_sa.outputs.saName
+    blobContainerName: r_blob.outputs.blobContainerName
+
+    cosmos_db_accnt_name: r_cosmosdb.outputs.cosmos_db_accnt_name
+    cosmos_db_name: r_cosmosdb.outputs.cosmos_db_name
+    cosmos_db_container_name: r_cosmosdb.outputs.cosmos_db_container_name
+  }
+  dependsOn: [
+    r_sa
+    r_logAnalyticsWorkspace
+  ]
+}
+
+@description('Add Permissions to UAMI')
+module r_add_perms_to_uami 'modules/identity/assign_perms_to_uami.bicep' ={
+  name: 'perms_provider_to_uami_${deploymentParams.global_uniqueness}'
+  params: {
+    uami_name_akane: r_uami.outputs.uami_name_akane
+  }
+  dependsOn: [
+    r_uami
+    r_fn_app
+  ]
+}
+
+@description('Deploy Cognitive Search')
+module r_cognitive_search 'modules/ai_ml/create_cognitive_search.bicep' = {
+  name: 'lumberyard_mill_${deploymentParams.global_uniqueness}_cs'
+  params: {
+    deploymentParams:deploymentParams
+    uami_name_akane: r_uami.outputs.uami_name_akane
+    tags: tags
+  }
+  dependsOn: [
+    r_uami
+  ]
+}
+
+
+

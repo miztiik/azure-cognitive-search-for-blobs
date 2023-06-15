@@ -1,6 +1,6 @@
 // SET MODULE DATE
 param module_metadata object = {
-  module_last_updated : '2023-06-05'
+  module_last_updated : '2023-06-15'
   owner: 'miztiik@github'
 }
 
@@ -9,6 +9,13 @@ param identityParams object
 param tags object
 
 var _prebaked_uami_name_prefix = '${identityParams.namePrefix}_${deploymentParams.enterprise_name_suffix}_${deploymentParams.global_uniqueness}'
+
+@description('Create User-Assigned Managed Identity - For Everything')
+resource r_uami_akane 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${_prebaked_uami_name_prefix}_akane'
+  location: deploymentParams.location
+  tags: tags
+}
 
 @description('Create User-Assigned Managed Identity - For VMs')
 resource r_uami_vm 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
@@ -58,6 +65,7 @@ resource r_uami_func 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-3
 // Output
 output module_metadata object = module_metadata
 
+output uami_name_akane string = r_uami_akane.name
 output uami_name_vm string = r_uami_vm.name
 output uami_name_func string = r_uami_func.name
 // output uami_name_stream_analytics string = r_uami_stream_analytics.name
